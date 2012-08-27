@@ -35,3 +35,24 @@ bash "write_settings" do
     mv #{SETTINGS_FILE}.replaced #{SETTINGS_FILE}
     }
 end
+
+bash "create_superuser" do
+  cwd "/srv/localwiki/sapling/"
+  environment "LOCALWIKI_DATA_ROOT" => "/usr/share/localwiki/"
+  code %Q{
+    source /usr/lib/virtualenvs/localwiki/bin/activate
+    python manage.py syncdb --noinput --migrate
+    python manage.py createsuperuser --noinput \
+      --username=#{node[:localwiki][:superuser][:username]} \
+      --email=#{node[:localwiki][:superuser][:email]}
+  }
+end
+
+bash "run_setup_all" do
+  cwd "/srv/localwiki/sapling/"
+  environment "LOCALWIKI_DATA_ROOT" => "/usr/share/localwiki/"
+  code %Q{
+    source /usr/lib/virtualenvs/localwiki/bin/activate
+    python manage.py setup_all
+    }
+end
