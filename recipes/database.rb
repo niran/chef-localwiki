@@ -36,16 +36,32 @@ bash "write_settings" do
     }
 end
 
+directory "/tmp/chef-localwiki/"
+cookbook_file "/tmp/chef-localwiki/superuser_exists.py"
+
+bash "set_superuser_flag_pre_create" do
+  cwd "/srv/localwiki/sapling/"
+  environment "LOCALWIKI_DATA_ROOT" => "/usr/share/localwiki/",
+    "PYTHONPATH" => "."
+  code %Q{
+    source /usr/lib/virtualenvs/localwiki/bin/activate
+    python /tmp/chef-localwiki/superuser_exists.py #{node[:localwiki][:superuser][:username]}
+  }
+end
+
 bash "create_superuser" do
   cwd "/srv/localwiki/sapling/"
-  environment "LOCALWIKI_DATA_ROOT" => "/usr/share/localwiki/"
+  environment "LOCALWIKI_DATA_ROOT" => "/usr/share/localwiki/",
+    "PYTHONPATH" => "."
   code %Q{
     source /usr/lib/virtualenvs/localwiki/bin/activate
     python manage.py syncdb --noinput --migrate
     python manage.py createsuperuser --noinput \
       --username=#{node[:localwiki][:superuser][:username]} \
       --email=#{node[:localwiki][:superuser][:email]}
+    python /tmp/chef-localwiki/superuser_exists.py #{node[:localwiki][:superuser][:username]}
   }
+  creates "/usr/share/localwiki/conf/superuser_created"
 end
 
 bash "run_setup_all" do
