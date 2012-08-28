@@ -11,3 +11,7 @@ python_virtualenv "/usr/lib/virtualenvs/localwiki" do
   action :create
   options "--system-site-packages"
 end
+
+cookbook_file "/etc/bash.bashrc" do
+  mode 0644
+end

@@ -62,3 +62,11 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 		fi
 	}
 fi
+
+# Set localwiki environment variables.
+export LOCALWIKI_DATA_ROOT=/usr/share/localwiki/
+
+# Source localwiki virtualenv.
+if [ -f /usr/lib/virtualenvs/localwiki/bin/activate ]; then
+  source /usr/lib/virtualenvs/localwiki/bin/activate
+fi
